@@ -1,15 +1,52 @@
 # IN ABu LIST __all__
 from __future__ import absolute_import
 
-from .ABuFixes import *
-from .ABuPdHelper import *
-from . import ABuEnv as env
-from . import ABu as abu
-from .ABuEnv import EMarketSourceType, EMarketTargetType, EMarketSubType, \
-    EMarketDataSplitMode, EMarketDataFetchMode, EDataCacheType
-from .ABuBase import AbuParamBase, FreezeAttrMixin, PickleStateMixin
-from .ABuParallel import Parallel, delayed
-from .ABuStore import AbuResultTuple, EStoreAbu
+try:
+    from .ABuFixes import *
+except ImportError:
+    pass
+
+try:
+    from .ABuPdHelper import *
+except ImportError:
+    pass
+
+try:
+    from . import ABuEnv as env
+    from .ABuEnv import EMarketSourceType, EMarketTargetType, EMarketSubType, \
+        EMarketDataSplitMode, EMarketDataFetchMode, EDataCacheType
+except ImportError:
+    env = None
+
+try:
+    from . import ABu as abu
+except ImportError:
+    abu = None
+
+try:
+    from .ABuBase import AbuParamBase, FreezeAttrMixin, PickleStateMixin
+except ImportError:
+    pass
+
+try:
+    from .ABuParallel import Parallel, delayed
+except ImportError:
+    pass
+
+try:
+    from .ABuStore import AbuResultTuple, EStoreAbu
+except ImportError:
+    pass
+
+# Import sklearn utilities if available
+try:
+    from sklearn.model_selection import train_test_split, KFold, learning_curve, cross_val_score, GridSearchCV
+except ImportError:
+    train_test_split = None
+    KFold = None
+    learning_curve = None
+    cross_val_score = None
+    GridSearchCV = None
 
 __all__ = [
     'abu',
