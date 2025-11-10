@@ -1,0 +1,15 @@
+# Inclui todas as dependências principais
+-r requirements.txt
+
+# Ferramentas de desenvolvimento e testes
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+
+# Ferramentas de qualidade de código
+ruff>=0.1.0
+mypy>=1.5.0
+pre-commit>=3.4.0
+black>=23.0.0
+isort>=5.12.0
+
