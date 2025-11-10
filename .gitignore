@@ -28,6 +28,8 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+.coverage.*
+.tox/
 
 # Environment variables
 .env
@@ -41,9 +43,48 @@ build/
 
 # Jupyter
 .ipynb_checkpoints/
+*.ipynb_checkpoints
 
 # Node.js
 node_modules/
 .npm
 .pnp
 .pnp.js
+
+# Logs
+logs/
+*.log
+
+# Data
+data/
+*.csv
+*.h5
+*.hdf5
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Coverage
+.coverage
+coverage.xml
+*.cover
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# IDE specific
+.idea/
+.vscode/
+*.code-workspace
+
+# OS specific
+.DS_Store
+Thumbs.db
