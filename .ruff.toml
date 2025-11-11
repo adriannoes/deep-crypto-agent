@@ -33,17 +33,4 @@ line-ending = "auto"
 known-first-party = ["abupy", "crypto_quant_pro"]
 force-sort-within-sections = true
 
-# Excluir diretórios
-exclude = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "venv",
-    "build",
-    "dist",
-    "*.egg-info",
-    ".pytest_cache",
-    ".mypy_cache",
-    "node_modules",
-]
 
