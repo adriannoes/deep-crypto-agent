@@ -1,16 +1,24 @@
-from __future__ import absolute_import
-
 from .ABuPositionBase import AbuPositionBase
-from .ABuAtrPosition import AbuAtrPosition
-from .ABuKellyPosition import AbuKellyPosition
-from .ABuPtPosition import AbuPtPosition
-# noinspection all
-from . import ABuBeta as beta
 
-__all__ = [
-    'AbuPositionBase',
-    'AbuAtrPosition',
-    'AbuKellyPosition',
-    'AbuPtPosition',
-    'beta'
-]
+# Import optional modules with try/except
+try:
+    from .ABuAtrPosition import AbuAtrPosition
+except ImportError:
+    AbuAtrPosition = None
+
+try:
+    from .ABuKellyPosition import AbuKellyPosition
+except ImportError:
+    AbuKellyPosition = None
+
+try:
+    from .ABuPtPosition import AbuPtPosition
+except ImportError:
+    AbuPtPosition = None
+
+try:
+    from . import ABuBeta as beta
+except ImportError:
+    beta = None
+
+__all__ = ["AbuPositionBase", "AbuAtrPosition", "AbuKellyPosition", "AbuPtPosition", "beta"]
