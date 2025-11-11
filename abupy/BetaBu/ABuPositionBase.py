@@ -14,7 +14,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Any, Optional
 
 from ..CoreBu.ABuFixes import six
-from ..MarketBu.ABuMarket import MarketMixin
+from ..MarketBu import MarketMixin
 
 # Maximum position ratio setting for each trade.
 # External can modify the maximum position ratio for each trade through,
