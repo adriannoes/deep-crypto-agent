@@ -4,21 +4,50 @@ Este guia fornece instruções detalhadas para configurar e trabalhar no ambient
 
 ## Pré-requisitos
 
-- Python 3.9 ou superior
+- Python 3.10 ou superior (recomendado 3.11)
 - pip ou poetry
 - git
+- Docker e Docker Compose (opcional, mas recomendado)
 - (Opcional) pyenv para gerenciar versões do Python
 
 ## Configuração do Ambiente
 
-### 1. Clone o Repositório
+### Opção 1: Usando Docker (Recomendado)
+
+A forma mais fácil de começar é usando Docker:
 
 ```bash
-git clone https://github.com/adrianno/crypto-trading.git
+# Clone o repositório
+git clone https://github.com/adriannoes/crypto-trading.git
+cd crypto-trading
+
+# Construa e inicie os containers
+docker-compose up -d
+
+# Execute comandos dentro do container
+docker-compose exec app pytest tests/
+docker-compose exec app ruff check .
+
+# Para parar os containers
+docker-compose down
+```
+
+**Vantagens do Docker:**
+- Ambiente isolado e consistente
+- Não precisa instalar dependências localmente
+- Banco de dados PostgreSQL e Redis incluídos
+- Fácil de resetar o ambiente
+
+### Opção 2: Instalação Local
+
+#### 1. Clone o Repositório
+
+```bash
+git clone https://github.com/adriannoes/crypto-trading.git
 cd crypto-trading
 ```
 
-### 2. Configure o Ambiente Virtual
+#### 2. Configure o Ambiente Virtual
 
 ```bash
 # Criar ambiente virtual
@@ -32,13 +61,14 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
-### 3. Instale as Dependências
+#### 3. Instale as Dependências
 
 ```bash
 # Instalação completa (recomendado)
 make setup
 
 # Ou manualmente:
+pip install -r requirements.txt
 pip install -r requirements-dev.txt
 pre-commit install
 ```
@@ -68,6 +98,22 @@ crypto-trading/
 
 ### Testes
 
+**Com Docker:**
+```bash
+# Todos os testes
+docker-compose exec app pytest
+
+# Apenas unitários
+docker-compose exec app pytest tests/unit/
+
+# Com cobertura
+docker-compose exec app pytest --cov=abupy --cov=crypto_quant_pro
+
+# Testes específicos
+docker-compose exec app pytest tests/unit/test_abupy/test_core_bu.py
+```
+
+**Localmente:**
 ```bash
 # Todos os testes
 pytest
@@ -84,6 +130,22 @@ pytest tests/unit/test_abupy/test_core_bu.py
 
 ### Qualidade de Código
 
+**Com Docker:**
+```bash
+# Linting
+docker-compose exec app ruff check .
+
+# Formatação
+docker-compose exec app ruff format .
+
+# Type checking
+docker-compose exec app mypy abupy/
+
+# Todos os checks
+docker-compose exec app make check
+```
+
+**Localmente:**
 ```bash
 # Linting
 ruff check .
@@ -210,4 +272,3 @@ pytest --cache-clear
 - [Pytest Documentation](https://docs.pytest.org/)
 - [Ruff Documentation](https://docs.astral.sh/ruff/)
 - [Conventional Commits](https://www.conventionalcommits.org/)
-
