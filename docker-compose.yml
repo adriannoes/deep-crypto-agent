@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Main application service
+  app:
+    build: .
+    container_name: crypto-trading-app
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=INFO
+    command: tail -f /dev/null  # Keep container running for development
+
+  # Database service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: crypto-trading-db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=crypto_trading
+    ports:
+      - "5432:5432"
+
+  # Cache service (Redis)
+  redis:
+    image: redis:7-alpine
+    container_name: crypto-trading-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
