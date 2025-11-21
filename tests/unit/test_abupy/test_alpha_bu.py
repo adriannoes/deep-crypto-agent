@@ -9,8 +9,8 @@ class TestAbuPickTimeWorkBase:
 
     def test_abstract_class_cannot_be_instantiated(self):
         """Verify abstract class cannot be instantiated."""
-        with pytest.raises(TypeError):
-            AbuPickTimeWorkBase()
+            with pytest.raises(TypeError):
+                AbuPickTimeWorkBase()
 
     def test_class_exists(self):
         """Verify class exists and is abstract."""
@@ -23,8 +23,8 @@ class TestAbuPickStockWorkBase:
 
     def test_abstract_class_cannot_be_instantiated(self):
         """Verify abstract class cannot be instantiated."""
-        with pytest.raises(TypeError):
-            AbuPickStockWorkBase()
+            with pytest.raises(TypeError):
+                AbuPickStockWorkBase()
 
     def test_class_exists(self):
         """Verify class exists and is abstract."""

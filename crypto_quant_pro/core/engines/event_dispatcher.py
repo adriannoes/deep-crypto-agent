@@ -62,7 +62,7 @@ class Event:
 class EventHandler:
     """Handler for trading events."""
 
-    def __init__(self, callback: Callable[[Event], None], priority: int = 1):
+    def __init__(self, callback: Callable[[Event], Any], priority: int = 1):
         """
         Initialize event handler.
 
@@ -73,12 +73,13 @@ class EventHandler:
         self.callback = callback
         self.priority = priority
 
-    def __call__(self, event: Event) -> None:
+    def __call__(self, event: Event) -> Any:
         """Execute handler callback."""
         try:
-            self.callback(event)
+            return self.callback(event)
         except Exception as e:
             logger.error(f"Error in event handler: {e}")
+            return None
 
 
 class EventDispatcher:
@@ -93,7 +94,7 @@ class EventDispatcher:
         """Initialize event dispatcher."""
         self._handlers: dict[EventType, list[EventHandler]] = {}
         self._async_handlers: dict[EventType, list[EventHandler]] = {}
-        self._event_queue: asyncio.Queue[Event] = asyncio.Queue()
+        self._event_queue: Optional[asyncio.Queue[Event]] = None
         self._running = False
         self._task: Optional[asyncio.Task] = None
 
@@ -166,7 +167,7 @@ class EventDispatcher:
         Args:
             event: Event to publish
         """
-        if self._running:
+        if self._running and self._event_queue:
             # If running async, add to queue
             try:
                 self._event_queue.put_nowait(event)
@@ -183,7 +184,10 @@ class EventDispatcher:
         Args:
             event: Event to publish
         """
-        await self._event_queue.put(event)
+        if self._event_queue:
+            await self._event_queue.put(event)
+        else:
+            self._process_event(event)
 
     def _process_event(self, event: Event) -> None:
         """
@@ -216,6 +220,7 @@ class EventDispatcher:
         if self._running:
             return
 
+        self._event_queue = asyncio.Queue()
         self._running = True
         self._task = asyncio.create_task(self._process_events())
 
@@ -258,11 +263,11 @@ class EventDispatcher:
 
     async def _process_events(self) -> None:
         """Main event processing loop."""
-        while self._running:
+        while self._running and self._event_queue:
             try:
                 # Wait for next event with timeout
                 event = await asyncio.wait_for(self._event_queue.get(), timeout=1.0)
-                self._process_event(event)
+                await self._process_event_async(event)
                 self._event_queue.task_done()
 
             except asyncio.TimeoutError:
@@ -273,6 +278,30 @@ class EventDispatcher:
             except Exception as e:
                 logger.error(f"Error processing events: {e}")
                 continue
+
+    async def _process_event_async(self, event: Event) -> None:
+        """
+        Process a single event asynchronously by calling all handlers.
+
+        Args:
+            event: Event to process
+        """
+        logger.debug(f"Processing event: {event.type.value} from {event.source}")
+
+        # Call synchronous handlers
+        if event.type in self._handlers:
+            for handler in self._handlers[event.type]:
+                handler(event)
+
+        # Call async handlers
+        if event.type in self._async_handlers:
+            for handler in self._async_handlers[event.type]:
+                try:
+                    result = handler(event)
+                    if asyncio.iscoroutine(result):
+                        await result
+                except Exception as e:
+                    logger.error(f"Error in async event handler for {event.type.value}: {e}")
 
     def get_subscriber_count(self, event_type: Optional[EventType] = None) -> int:
         """
