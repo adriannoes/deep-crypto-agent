@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
+import inspect
 import logging
 from typing import Any, Callable, Optional
 
@@ -136,7 +137,9 @@ class BacktestingEngine:
 
             # Execute strategy
             try:
-                strategy_func(self, current_date)
+                res = strategy_func(self, current_date)
+                if inspect.isawaitable(res):
+                    await res
             except Exception as e:
                 logger.error(f"Strategy error on {current_date}: {e}")
 
@@ -493,7 +496,9 @@ class BacktestingEngine:
             annualized_return = Decimal("0")
 
         # Volatility (daily returns)
-        portfolio_series = pd.Series(self.portfolio_history, index=self.timestamps)
+        # Convert to float for pandas calculations
+        portfolio_floats = [float(x) for x in self.portfolio_history]
+        portfolio_series = pd.Series(portfolio_floats, index=self.timestamps)
         daily_returns = portfolio_series.pct_change().dropna()
         volatility = Decimal(str(daily_returns.std() * (252**0.5)))  # Annualized
 
@@ -509,12 +514,15 @@ class BacktestingEngine:
         drawdowns = (portfolio_series - rolling_max) / rolling_max
         max_drawdown = Decimal(str(abs(drawdowns.min())))
 
-        # Win rate
+        # Win rate - count closed positions (trades with realized_pnl)
         profitable_trades = sum(1 for trade in self.trades if trade.get("realized_pnl", 0) > 0)
-        total_trades = len([t for t in self.trades if "realized_pnl" in t])
+        closed_trades = len([t for t in self.trades if "realized_pnl" in t])
         win_rate = (
-            Decimal(str(profitable_trades / total_trades)) if total_trades > 0 else Decimal("0")
+            Decimal(str(profitable_trades / closed_trades)) if closed_trades > 0 else Decimal("0")
         )
+
+        # Total trades includes all orders (buy and sell)
+        total_trades = len(self.trades)
 
         return BacktestResult(
             total_return=total_return,

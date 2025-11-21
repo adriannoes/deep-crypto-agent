@@ -8,7 +8,7 @@ from typing import Any, Optional
 
 from ...data import DatabaseManager, MarketDataFeed
 from .event_dispatcher import Event, EventDispatcher, EventType
-from .trading_engine import Order, Position
+from .models import Order, Position
 
 logger = logging.getLogger(__name__)
 
@@ -133,14 +133,13 @@ class PaperTradingEngine:
             self.order_history.append(order.to_dict())
 
             # Publish events
-            self.event_dispatcher.publish(
-                Event(
-                    type=EventType.ORDER_FILLED,
-                    timestamp=datetime.utcnow(),
-                    data=order.to_dict(),
-                    source="paper_trading_engine",
-                )
+            event = Event(
+                type=EventType.ORDER_FILLED,
+                timestamp=datetime.utcnow(),
+                data=order.to_dict(),
+                source="paper_trading_engine",
             )
+            self.event_dispatcher.publish(event)
 
             logger.info(
                 f"Paper order executed: {order.side} {order.quantity} {order.symbol} @ ${execution_price}"
@@ -371,14 +370,13 @@ class PaperTradingEngine:
                     del self.positions[symbol]
 
                     # Publish position closed event
-                    self.event_dispatcher.publish(
-                        Event(
-                            type=EventType.POSITION_CLOSED,
-                            timestamp=datetime.utcnow(),
-                            data={"symbol": symbol, "pnl": realized_pnl},
-                            source="paper_trading_engine",
-                        )
+                    event = Event(
+                        type=EventType.POSITION_CLOSED,
+                        timestamp=datetime.utcnow(),
+                        data={"symbol": symbol, "pnl": realized_pnl},
+                        source="paper_trading_engine",
                     )
+                    self.event_dispatcher.publish(event)
                 else:
                     # Partial close
                     realized_pnl = (price - position.entry_price) * sell_quantity
@@ -390,7 +388,7 @@ class PaperTradingEngine:
                     position.market_value = position.quantity * price
                     position.unrealized_pnl = (price - position.entry_price) * position.quantity
 
-    def _handle_ticker_update(self, event) -> None:
+    def _handle_ticker_update(self, event: Event) -> None:
         """Handle ticker price updates."""
         symbol = event.data.get("symbol")
         price = event.data.get("price")
