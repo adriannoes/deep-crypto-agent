@@ -161,7 +161,10 @@ Este projeto segue [Conventional Commits](https://www.conventionalcommits.org/):
 
 Documentação adicional disponível em:
 
+- [Índice de Documentação](docs/README.md) - Índice completo da documentação
 - [Arquitetura](docs/ARCHITECTURE.md) - Visão geral da arquitetura do sistema
+- [Sistema de Estratégias](docs/STRATEGIES.md) - Guia completo do sistema de estratégias
+- [Exemplos de Código](docs/EXAMPLES.md) - Exemplos práticos de uso
 - [Guia de Contribuição](docs/CONTRIBUTING.md) - Como contribuir para o projeto
 - [Guia de Desenvolvimento](docs/DEVELOPMENT.md) - Setup e desenvolvimento local
 - [Estratégia de Migração](docs/MIGRATION.md) - Migração do ABU legado
@@ -174,8 +177,12 @@ Documentação adicional disponível em:
 - ⚠️ Em processo de migração para nova arquitetura
 
 ### Nova Arquitetura (crypto_quant_pro/)
-- 🚧 Estrutura definida
-- 🚧 Em desenvolvimento ativo
+- ✅ Data Layer implementado (feeds, storage, processing)
+- ✅ Core Engine implementado (trading, backtesting, paper trading)
+- ✅ Strategy System implementado (buy/sell strategies, registry)
+- ✅ Testes unitários (43+ testes passando)
+- 🚧 Risk Management (em desenvolvimento)
+- 🚧 Machine Learning (planejado)
 
 ## 🤝 Contribuindo
 
