@@ -7,6 +7,20 @@ from .engines import (
     TradingEngine,
 )
 from .engines.abu_engine_adapter import AbuEngineAdapter
+from .risk import (
+    AbuPositionAdapter,
+    OptimizationConfig,
+    OptimizationMethod,
+    PortfolioOptimizer,
+    PositionConfig,
+    PositionLimit,
+    PositionManager,
+    RiskCalculator,
+    RiskMetrics,
+    StopLossConfig,
+    StopLossManager,
+    StopLossType,
+)
 
 __all__ = [
     "TradingEngine",
@@ -14,4 +28,16 @@ __all__ = [
     "PaperTradingEngine",
     "EventDispatcher",
     "AbuEngineAdapter",
+    "PositionManager",
+    "PositionConfig",
+    "PositionLimit",
+    "RiskCalculator",
+    "RiskMetrics",
+    "StopLossManager",
+    "StopLossConfig",
+    "StopLossType",
+    "PortfolioOptimizer",
+    "OptimizationConfig",
+    "OptimizationMethod",
+    "AbuPositionAdapter",
 ]
