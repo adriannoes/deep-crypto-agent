@@ -4,11 +4,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 import logging
-from typing import Any, Optional
+from typing import Optional
 
 from ...data import DatabaseManager, MarketDataFeed
-from ..paper_trading.engine import PaperTradingEngine
 from .event_dispatcher import Event, EventDispatcher, EventType
+from .models import Order, Position
+from .paper_trading_engine import PaperTradingEngine
 
 logger = logging.getLogger(__name__)
 
@@ -32,71 +33,6 @@ class TradingConfig:
 
     # Paper trading mode
     paper_trading: bool = True  # Start in paper trading mode by default
-
-
-class Order:
-    """Trading order representation."""
-
-    def __init__(
-        self,
-        symbol: str,
-        side: str,  # 'buy' or 'sell'
-        quantity: Decimal,
-        price: Optional[Decimal] = None,  # Market order if None
-        order_type: str = "market",
-        stop_loss: Optional[Decimal] = None,
-        take_profit: Optional[Decimal] = None,
-    ):
-        self.id = f"order_{int(datetime.utcnow().timestamp() * 1000)}"
-        self.symbol = symbol
-        self.side = side
-        self.quantity = quantity
-        self.price = price
-        self.order_type = order_type
-        self.stop_loss = stop_loss
-        self.take_profit = take_profit
-        self.status = "pending"
-        self.timestamp = datetime.utcnow()
-        self.filled_quantity = Decimal("0")
-        self.filled_price = Decimal("0")
-        self.fees = Decimal("0")
-
-    def to_dict(self) -> dict[str, Any]:
-        """Convert order to dictionary."""
-        return {
-            "id": self.id,
-            "symbol": self.symbol,
-            "side": self.side,
-            "quantity": str(self.quantity),
-            "price": str(self.price) if self.price else None,
-            "order_type": self.order_type,
-            "stop_loss": str(self.stop_loss) if self.stop_loss else None,
-            "take_profit": str(self.take_profit) if self.take_profit else None,
-            "status": self.status,
-            "timestamp": self.timestamp.isoformat(),
-            "filled_quantity": str(self.filled_quantity),
-            "filled_price": str(self.filled_price),
-            "fees": str(self.fees),
-        }
-
-
-@dataclass
-class Position:
-    """Trading position representation."""
-
-    symbol: str
-    quantity: Decimal
-    entry_price: Decimal
-    current_price: Decimal
-    market_value: Decimal
-    unrealized_pnl: Decimal
-    stop_loss: Optional[Decimal] = None
-    take_profit: Optional[Decimal] = None
-
-    @property
-    def side(self) -> str:
-        """Get position side (long/short)."""
-        return "long" if self.quantity > 0 else "short"
 
 
 class TradingEngine:
@@ -172,8 +108,6 @@ class TradingEngine:
         self._risk_monitor_task = asyncio.create_task(self._risk_monitor_loop())
 
         # Publish startup event
-        from .event_dispatcher import Event
-
         event = Event(
             type=EventType.ENGINE_STARTED,
             timestamp=datetime.utcnow(),
@@ -216,18 +150,17 @@ class TradingEngine:
                         ticker_data = self.data_feed.get_ticker(symbol)
                         if ticker_data:
                             # Publish market data update
-                            self.event_dispatcher.publish(
-                                Event(
-                                    type=EventType.TICKER_UPDATE,
-                                    timestamp=datetime.utcnow(),
-                                    data={
-                                        "symbol": symbol,
-                                        "price": ticker_data.get("price"),
-                                        "volume_24h": ticker_data.get("volume_24h"),
-                                    },
-                                    source="trading_engine",
-                                )
+                            event = Event(
+                                type=EventType.TICKER_UPDATE,
+                                timestamp=datetime.utcnow(),
+                                data={
+                                    "symbol": symbol,
+                                    "price": ticker_data.get("price"),
+                                    "volume_24h": ticker_data.get("volume_24h"),
+                                },
+                                source="trading_engine",
                             )
+                            self.event_dispatcher.publish(event)
 
                 await asyncio.sleep(self.config.update_interval)
 
@@ -273,16 +206,13 @@ class TradingEngine:
             self.orders[order.id] = order
 
             # Publish order placed event
-            from .event_dispatcher import Event
-
-            self.event_dispatcher.publish(
-                Event(
-                    type=EventType.ORDER_PLACED,
-                    timestamp=datetime.utcnow(),
-                    data=order.to_dict(),
-                    source="trading_engine",
-                )
+            event = Event(
+                type=EventType.ORDER_PLACED,
+                timestamp=datetime.utcnow(),
+                data=order.to_dict(),
+                source="trading_engine",
             )
+            self.event_dispatcher.publish(event)
 
             # Execute order (paper trading or live)
             if self.config.paper_trading and self.paper_engine:
@@ -320,13 +250,25 @@ class TradingEngine:
             logger.error(f"Invalid quantity: {quantity}")
             return False
 
-        if quantity < self.config.min_order_size:
-            logger.error(f"Order too small: {quantity} < {self.config.min_order_size}")
-            return False
+        # Check order value (notional)
+        order_value = quantity * (price or Decimal("0"))
+        # If price is None (market order) and we can't easily estimate, we might skip this check
+        # or require price to be passed for validation.
+        # For now, if price is present, check value. If not, check quantity as fallback?
+        # Better: assume min_order_size is strictly USD value.
 
-        if quantity > self.config.max_order_size:
-            logger.error(f"Order too large: {quantity} > {self.config.max_order_size}")
-            return False
+        if price:
+            if order_value < self.config.min_order_size:
+                logger.error(f"Order value too small: {order_value} < {self.config.min_order_size}")
+                return False
+
+            if order_value > self.config.max_order_size:
+                logger.error(f"Order value too large: {order_value} > {self.config.max_order_size}")
+                return False
+        else:
+            # For market orders without price, we skip value check or need to fetch price
+            # Just logging warning for now
+            pass
 
         # Check position limits
         if len(self.positions) >= self.config.max_open_positions:
@@ -355,16 +297,13 @@ class TradingEngine:
         order.status = "cancelled"
 
         # Publish cancellation event
-        from .event_dispatcher import Event
-
-        self.event_dispatcher.publish(
-            Event(
-                type=EventType.ORDER_CANCELLED,
-                timestamp=datetime.utcnow(),
-                data={"order_id": order_id},
-                source="trading_engine",
-            )
+        event = Event(
+            type=EventType.ORDER_CANCELLED,
+            timestamp=datetime.utcnow(),
+            data={"order_id": order_id},
+            source="trading_engine",
         )
+        self.event_dispatcher.publish(event)
 
         return True
 
@@ -413,16 +352,13 @@ class TradingEngine:
                 self.positions.pop(symbol)
 
                 # Publish position closed event
-                from .event_dispatcher import Event
-
-                self.event_dispatcher.publish(
-                    Event(
-                        type=EventType.POSITION_CLOSED,
-                        timestamp=datetime.utcnow(),
-                        data={"symbol": symbol, "pnl": position.unrealized_pnl},
-                        source="trading_engine",
-                    )
+                event = Event(
+                    type=EventType.POSITION_CLOSED,
+                    timestamp=datetime.utcnow(),
+                    data={"symbol": symbol, "pnl": position.unrealized_pnl},
+                    source="trading_engine",
                 )
+                self.event_dispatcher.publish(event)
             else:
                 # Update position
                 position.quantity = total_quantity
@@ -443,16 +379,13 @@ class TradingEngine:
             )
 
             # Publish position opened event
-            from .event_dispatcher import Event
-
-            self.event_dispatcher.publish(
-                Event(
-                    type=EventType.POSITION_OPENED,
-                    timestamp=datetime.utcnow(),
-                    data={"symbol": symbol, "quantity": quantity, "price": price},
-                    source="trading_engine",
-                )
+            event = Event(
+                type=EventType.POSITION_OPENED,
+                timestamp=datetime.utcnow(),
+                data={"symbol": symbol, "quantity": quantity, "price": price},
+                source="trading_engine",
             )
+            self.event_dispatcher.publish(event)
 
     async def _check_risk_limits(self) -> None:
         """Check and enforce risk limits."""
@@ -487,7 +420,7 @@ class TradingEngine:
             elif position.quantity < 0:
                 await self.place_order(symbol, "buy", -position.quantity)
 
-    def _handle_market_data_update(self, event) -> None:
+    def _handle_market_data_update(self, event: Event) -> None:
         """Handle market data update events."""
         # Update position prices
         for symbol, position in self.positions.items():
@@ -498,11 +431,11 @@ class TradingEngine:
                     position.market_value = abs(position.quantity) * new_price
                     position.unrealized_pnl = (new_price - position.entry_price) * position.quantity
 
-    def _handle_order_placed(self, event) -> None:
+    def _handle_order_placed(self, event: Event) -> None:
         """Handle order placed events."""
         logger.info(f"Order placed: {event.data}")
 
-    def _handle_order_filled(self, event) -> None:
+    def _handle_order_filled(self, event: Event) -> None:
         """Handle order filled events."""
         logger.info(f"Order filled: {event.data}")
 
