@@ -1,34 +1,32 @@
-# -*- encoding:utf-8 -*-
-"""
-Testes unitários para o módulo AlphaBu
-"""
+"""Unit tests for AlphaBu pick base classes."""
 import pytest
+
+from abupy.AlphaBu.ABuPickBase import AbuPickStockWorkBase, AbuPickTimeWorkBase
 
 
 class TestAbuPickTimeWorkBase:
-    """Testes para a classe base de timing"""
-    
+    """Tests for timing base class."""
+
     def test_abstract_class_cannot_be_instantiated(self):
-        """Verifica que a classe abstrata não pode ser instanciada"""
-        # Import local para evitar problemas de importação circular
-        try:
-            from abupy.AlphaBu.ABuPickBase import AbuPickTimeWorkBase
-            with pytest.raises(TypeError):
-                AbuPickTimeWorkBase()
-        except ImportError:
-            pytest.skip("Módulo ABuPickBase não disponível ainda")
+        """Verify abstract class cannot be instantiated."""
+        with pytest.raises(TypeError):
+            AbuPickTimeWorkBase()
+
+    def test_class_exists(self):
+        """Verify class exists and is abstract."""
+        assert AbuPickTimeWorkBase is not None
+        assert hasattr(AbuPickTimeWorkBase, "__abstractmethods__")
 
 
 class TestAbuPickStockWorkBase:
-    """Testes para a classe base de seleção de ações"""
-    
-    def test_abstract_class_cannot_be_instantiated(self):
-        """Verifica que a classe abstrata não pode ser instanciada"""
-        # Import local para evitar problemas de importação circular
-        try:
-            from abupy.AlphaBu.ABuPickBase import AbuPickStockWorkBase
-            with pytest.raises(TypeError):
-                AbuPickStockWorkBase()
-        except ImportError:
-            pytest.skip("Módulo ABuPickBase não disponível ainda")
+    """Tests for stock selection base class."""
 
+    def test_abstract_class_cannot_be_instantiated(self):
+        """Verify abstract class cannot be instantiated."""
+        with pytest.raises(TypeError):
+            AbuPickStockWorkBase()
+
+    def test_class_exists(self):
+        """Verify class exists and is abstract."""
+        assert AbuPickStockWorkBase is not None
+        assert hasattr(AbuPickStockWorkBase, "__abstractmethods__")
