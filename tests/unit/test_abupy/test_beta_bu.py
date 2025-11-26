@@ -27,8 +27,8 @@ class TestAbuPositionBase:
 
     def test_abstract_class_cannot_be_instantiated(self):
         """Verify abstract class cannot be instantiated."""
-        with pytest.raises(TypeError):
-            AbuPositionBase(None, None, None, None, None)
+            with pytest.raises(TypeError):
+                AbuPositionBase(None, None, None, None, None)
 
     def test_concrete_implementation(self):
         """Test concrete implementation of position base."""
