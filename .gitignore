@@ -55,11 +55,12 @@ node_modules/
 logs/
 *.log
 
-# Data
-data/
+# Data files (but not source code)
+/data/
 *.csv
 *.h5
 *.hdf5
+!crypto_quant_pro/data/**/*.py
 
 # MyPy
 .mypy_cache/
