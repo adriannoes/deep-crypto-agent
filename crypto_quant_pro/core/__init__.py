@@ -7,6 +7,21 @@ from .engines import (
     TradingEngine,
 )
 from .engines.abu_engine_adapter import AbuEngineAdapter
+from .strategies import (
+    BaseStrategy,
+    StrategySignal,
+    StrategyDirection,
+    StrategyRegistry,
+    MovingAverageCrossStrategy,
+    BreakoutStrategy,
+    RSIStrategy,
+    StopLossStrategy,
+    TakeProfitStrategy,
+    TrailingStopStrategy,
+    AbuBuyFactorAdapter,
+    AbuSellFactorAdapter,
+    register_legacy_strategies,
+)
 
 __all__ = [
     "TradingEngine",
@@ -14,4 +29,17 @@ __all__ = [
     "PaperTradingEngine",
     "EventDispatcher",
     "AbuEngineAdapter",
+    "BaseStrategy",
+    "StrategySignal",
+    "StrategyDirection",
+    "StrategyRegistry",
+    "MovingAverageCrossStrategy",
+    "BreakoutStrategy",
+    "RSIStrategy",
+    "StopLossStrategy",
+    "TakeProfitStrategy",
+    "TrailingStopStrategy",
+    "AbuBuyFactorAdapter",
+    "AbuSellFactorAdapter",
+    "register_legacy_strategies",
 ]
