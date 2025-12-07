@@ -1,9 +1,10 @@
 """Strategy module for Crypto Quant Pro."""
 
-from .base import BaseStrategy, StrategySignal, StrategyDirection
+from .abu_adapters import AbuBuyFactorAdapter, AbuSellFactorAdapter, register_legacy_strategies
+from .base import BaseStrategy, StrategyDirection, StrategySignal
 from .buy_strategies import (
-    MovingAverageCrossStrategy,
     BreakoutStrategy,
+    MovingAverageCrossStrategy,
     RSIStrategy,
 )
 from .sell_strategies import (
@@ -12,7 +13,6 @@ from .sell_strategies import (
     TrailingStopStrategy,
 )
 from .strategy_registry import StrategyRegistry
-from .abu_adapters import AbuBuyFactorAdapter, AbuSellFactorAdapter, register_legacy_strategies
 
 __all__ = [
     "BaseStrategy",
