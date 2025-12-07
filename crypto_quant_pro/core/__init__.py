@@ -7,20 +7,6 @@ from .engines import (
     TradingEngine,
 )
 from .engines.abu_engine_adapter import AbuEngineAdapter
-from .risk import (
-    AbuPositionAdapter,
-    OptimizationConfig,
-    OptimizationMethod,
-    PortfolioOptimizer,
-    PositionConfig,
-    PositionLimit,
-    PositionManager,
-    RiskCalculator,
-    RiskMetrics,
-    StopLossConfig,
-    StopLossManager,
-    StopLossType,
-)
 from .strategies import (
     AbuBuyFactorAdapter,
     AbuSellFactorAdapter,
@@ -35,6 +21,26 @@ from .strategies import (
     TakeProfitStrategy,
     TrailingStopStrategy,
     register_legacy_strategies,
+)
+from .risk import (
+    AbuPositionAdapter,
+    OptimizationConfig,
+    OptimizationMethod,
+    PortfolioOptimizer,
+    PositionConfig,
+    PositionLimit,
+    PositionManager,
+    RiskCalculator,
+    RiskMetrics,
+    StopLossConfig,
+    StopLossManager,
+    StopLossType,
+)
+from .metrics import (
+    PerformanceCalculator,
+    PerformanceMetrics,
+    ReportGenerator,
+    RiskMetricsCalculator,
 )
 
 __all__ = [
@@ -68,4 +74,8 @@ __all__ = [
     "OptimizationConfig",
     "OptimizationMethod",
     "AbuPositionAdapter",
+    "PerformanceCalculator",
+    "PerformanceMetrics",
+    "ReportGenerator",
+    "RiskMetricsCalculator",
 ]
