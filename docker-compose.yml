@@ -22,11 +22,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=crypto_trading
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-crypto_trading}
     ports:
       - "5432:5432"
+    # Note: For production, set POSTGRES_PASSWORD via .env file
 
   # Cache service (Redis)
   redis:
