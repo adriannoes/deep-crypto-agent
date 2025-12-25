@@ -68,8 +68,7 @@ venv\Scripts\activate
 make setup
 
 # Ou manualmente:
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"
 pre-commit install
 ```
 
@@ -235,8 +234,9 @@ pytest --lf
 
 ### Dependências
 
-- Atualize `requirements.txt` ao adicionar novas dependências
-- Use `pip freeze > requirements.txt` com cuidado (pode incluir dependências indesejadas)
+- Atualize `pyproject.toml` ao adicionar novas dependências
+- Adicione dependências principais em `[project.dependencies]`
+- Adicione dependências de desenvolvimento em `[project.optional-dependencies.dev]`
 
 ### Documentação
 

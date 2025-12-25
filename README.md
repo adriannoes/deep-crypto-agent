@@ -41,7 +41,7 @@ crypto-trading/
 │
 ├── docs/                     # Documentação
 ├── config/                   # Configurações
-└── requirements*.txt        # Dependências Python
+└── pyproject.toml          # Configuração e dependências Python
 ```
 
 ## 🚀 Instalação
@@ -67,7 +67,7 @@ source venv/bin/activate  # No Windows: venv\Scripts\activate
 
 3. Instale as dependências:
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ### Instalação para Desenvolvimento
@@ -75,7 +75,7 @@ pip install -r requirements.txt
 Para desenvolvimento, instale também as dependências de desenvolvimento:
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"
 pre-commit install  # Instala hooks de pré-commit
 ```
 

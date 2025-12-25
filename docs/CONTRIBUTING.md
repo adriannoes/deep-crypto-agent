@@ -42,7 +42,7 @@ Para sugerir novas funcionalidades:
    ```bash
    git commit -m "feat: adiciona nova funcionalidade"
    ```
-   
+
    Use [Conventional Commits](https://www.conventionalcommits.org/):
    - `feat:` Nova funcionalidade
    - `fix:` Correção de bug
@@ -99,7 +99,7 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 make install-dev
 
 # Ou manualmente:
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"
 pre-commit install
 ```
 
@@ -134,4 +134,3 @@ make check
 Se tiver dúvidas, abra uma issue ou entre em contato com os mantenedores.
 
 Obrigado por contribuir! 🎉
-
