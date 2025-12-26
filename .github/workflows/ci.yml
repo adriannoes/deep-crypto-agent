@@ -28,7 +28,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Run ruff check
-        run: ruff check . --exclude abupy/ --fix || true
+        run: ruff check . --exclude abupy/ || true
         continue-on-error: true
 
       - name: Check formatting
