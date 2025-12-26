@@ -131,8 +131,10 @@ docker-compose exec app mypy abupy/
 # Install new package
 docker-compose exec app pip install package-name
 
-# Update requirements.txt
-docker-compose exec app pip freeze > requirements.txt
+# Update pyproject.toml
+# Manually edit pyproject.toml to add the new dependency
+# Then rebuild the container:
+docker-compose build app
 ```
 
 ### 5. Database Migrations

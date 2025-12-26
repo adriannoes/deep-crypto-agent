@@ -13,10 +13,10 @@ help: ## Mostra esta mensagem de ajuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 install: ## Instala dependências principais
-	$(PIP) install -r requirements.txt
+	$(PIP) install -e .
 
 install-dev: ## Instala dependências de desenvolvimento
-	$(PIP) install -r requirements-dev.txt
+	$(PIP) install -e ".[dev]"
 	pre-commit install
 
 test: ## Roda todos os testes
@@ -68,4 +68,3 @@ venv: ## Cria ambiente virtual
 
 setup: venv install-dev ## Setup completo do ambiente de desenvolvimento
 	@echo "Setup completo! Ative o ambiente virtual com: source $(VENV)/bin/activate"
-

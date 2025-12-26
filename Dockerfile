@@ -17,14 +17,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first to leverage cache
-COPY requirements.txt .
-COPY requirements-dev.txt .
+# Copy project configuration and package directories for editable install
+COPY pyproject.toml .
+COPY abupy/ abupy/
+COPY crypto_quant_pro/ crypto_quant_pro/
+COPY config/ config/
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt && \
-    pip install -r requirements-dev.txt
+    pip install -e ".[dev]"
 
 # Copy the rest of the application
 COPY . .

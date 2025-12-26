@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 
 from .CoreBu import *
-from .CheckBu import *
+# from .CheckBu import *  # Module not available
 from .FactorSellBu import *
 from .FactorBuyBu import *
 from .AlphaBu import *

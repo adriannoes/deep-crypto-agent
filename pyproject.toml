@@ -32,6 +32,9 @@ dependencies = [
     "scikit-learn>=1.3.0",
     "pydantic-settings>=2.0.0",
     "pyyaml>=6.0",
+    "requests>=2.31.0",
+    "sqlalchemy>=2.0.0",
+    "yfinance>=0.2.0",
 ]
 
 [project.optional-dependencies]
@@ -42,8 +45,6 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.5.0",
     "pre-commit>=3.4.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
 ]
 
 [project.urls]
@@ -54,6 +55,7 @@ Issues = "https://github.com/adrianno/crypto-trading/issues"
 
 [tool.setuptools]
 packages = ["abupy", "crypto_quant_pro"]
+package-dir = {"" = "."}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -86,15 +88,24 @@ select = [
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
+    "N",   # pep8-naming
 ]
 ignore = [
     "E501",  # line too long (handled by formatter)
     "B008",  # do not perform function calls in argument defaults
+    "B006",  # do not use mutable data structures for argument defaults
+    "UP009", # UTF-8 encoding declaration is unnecessary (legacy code)
 ]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.isort]
+known-first-party = ["abupy", "crypto_quant_pro"]
+force-sort-within-sections = true
 
 [tool.mypy]
 python_version = "3.9"
@@ -108,6 +119,9 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 ignore_missing_imports = true
+show_error_codes = true
+show_column_numbers = true
+pretty = true
 
 [[tool.mypy.overrides]]
 module = [
@@ -115,13 +129,15 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.black]
-line-length = 100
-target-version = ["py39", "py310", "py311", "py312"]
-include = '\.pyi?$'
+[[tool.mypy.overrides]]
+module = [
+    "crypto_quant_pro.*",
+]
+ignore_missing_imports = true
 
-[tool.isort]
-profile = "black"
-line_length = 100
-skip_gitignore = true
-
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+]
+ignore_errors = true
+disallow_untyped_defs = false
