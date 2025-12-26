@@ -77,6 +77,8 @@ markers = [
 line-length = 100
 target-version = "py39"
 exclude = ["abupy"]
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -91,6 +93,7 @@ ignore = [
     "E501",  # line too long (handled by formatter)
     "B008",  # do not perform function calls in argument defaults
     "B006",  # do not use mutable data structures for argument defaults
+    "UP009", # UTF-8 encoding declaration is unnecessary (legacy code)
 ]
 
 [tool.ruff.format]
@@ -99,7 +102,7 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["abupy", "crypto_quant_pro"]
 force-sort-within-sections = true
 
